@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cabo — Card Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ─── Start Screen ──────────────────────────────────────────── -->
+<div id="start-screen">
+  <h1>CABO</h1>
+  <p class="tagline">The game of low hands and sharp instincts</p>
+
+  <div class="start-controls">
+    <label>
+      Players:
+      <select id="player-count">
+        <option value="2">2 Players (1 AI)</option>
+        <option value="3" selected>3 Players (2 AI)</option>
+        <option value="4">4 Players (3 AI)</option>
+      </select>
+    </label>
+    <button id="btn-start-game" class="btn btn-primary" style="width:180px; text-align:center;">
+      Start Game
+    </button>
+  </div>
+
+  <div style="max-width:360px; text-align:center;">
+    <dl class="ability-legend" style="text-align:left; margin-top:8px;">
+      <dt>7 / 8</dt><dd>Peek at one of your own cards</dd>
+      <dt>9 / 10</dt><dd>Spy on an opponent's card</dd>
+      <dt>J / Q</dt><dd>Blind swap with an opponent</dd>
+      <dt>K</dt><dd>Spy + optional swap (K = 0 pts)</dd>
+    </dl>
+    <p style="margin-top:12px; font-size:0.75rem; color:#8aad96;">
+      Reach 100 points → eliminated. Last player standing wins.
+    </p>
+  </div>
+</div>
+
+<!-- ─── Game Screen ───────────────────────────────────────────── -->
+<div id="game-screen" style="display:none;">
+
+  <!-- Table -->
+  <div id="table">
+
+    <!-- Peek overlay -->
+    <div id="peek-overlay">
+      <div class="peek-msg">
+        👀 Memorize your bottom 2 cards!<br>
+        <small>They'll flip back in a moment…</small>
+      </div>
+    </div>
+
+    <!-- Center piles -->
+    <div id="center-area">
+      <div class="pile-row">
+        <div class="pile-wrapper">
+          <div id="deck-pile" class="card face-down">
+            <div class="card-back-pattern"></div>
+          </div>
+          <div class="pile-label">
+            Deck<br><span id="deck-count">52</span> cards
+          </div>
+        </div>
+
+        <div class="pile-wrapper">
+          <div id="discard-pile" style="min-width:var(--card-w); min-height:var(--card-h);">
+            <div class="empty-pile">Discard</div>
+          </div>
+          <div class="pile-label">Discard</div>
+        </div>
+
+        <div class="pile-wrapper">
+          <div id="drawn-card-area"></div>
+          <div class="pile-label">Drawn</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player areas are injected by UIRenderer.renderPlayers() -->
+
+  </div><!-- #table -->
+
+  <!-- Side Panel -->
+  <div id="side-panel">
+
+    <!-- Status -->
+    <div class="panel-section">
+      <div id="phase-info">—</div>
+      <div id="round-info">Round 1</div>
+      <div id="ability-prompt"></div>
+      <div id="selection-prompt"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel-section">
+      <h3>Actions</h3>
+      <div class="btn-group">
+        <button id="btn-cabo" class="btn btn-danger" disabled>
+          📣 Call Cabo
+        </button>
+        <button id="btn-deck" class="btn" disabled>
+          🂠 Draw from Deck
+        </button>
+        <button id="btn-discard-take" class="btn" disabled>
+          ↑ Take Discard
+        </button>
+        <button id="btn-swap" class="btn" disabled>
+          ⇄ Swap with Hand
+        </button>
+        <button id="btn-keep" class="btn" disabled>
+          ✗ Discard Drawn Card
+        </button>
+        <button id="btn-cancel-select" class="btn btn-sm" style="display:none;">
+          ✕ Cancel Selection
+        </button>
+      </div>
+    </div>
+
+    <!-- Scores -->
+    <div class="panel-section">
+      <h3>Scores</h3>
+      <table id="score-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Total</th>
+            <th>Rounds</th>
+          </tr>
+        </thead>
+        <tbody id="score-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Log -->
+    <div class="panel-section" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
+      <h3>Log</h3>
+      <div id="game-log"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="panel-section">
+      <div class="btn-group">
+        <button id="btn-new-round" class="btn btn-sm">↺ New Round</button>
+        <button id="btn-new-game" class="btn btn-sm">⏹ New Game</button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="panel-section">
+      <h3>Abilities</h3>
+      <dl class="ability-legend">
+        <dt>7/8</dt><dd>Peek own card</dd>
+        <dt>9/10</dt><dd>Spy opponent</dd>
+        <dt>J/Q</dt><dd>Blind swap</dd>
+        <dt>K (0)</dt><dd>Spy + swap</dd>
+      </dl>
+    </div>
+
+  </div><!-- #side-panel -->
+
+</div><!-- #game-screen -->
+
+<!-- ─── Swap Decision Modal ───────────────────────────────────── -->
+<div id="swap-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2>King Ability</h2>
+    <p style="font-size:0.9rem; color:#8aad96;">You spied this card:</p>
+    <div id="swap-modal-card"></div>
+    <p style="font-size:0.9rem; margin-top:8px;">Do you want to swap it with one of your cards?</p>
+    <div class="swap-btns">
+      <button id="swap-yes" class="btn available" style="flex:1;">Yes, Swap</button>
+      <button id="swap-no" class="btn" style="flex:1;">No Thanks</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Info / Results Modal ──────────────────────────────────── -->
+<div id="info-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h2 id="info-modal-title">Result</h2>
+    <div id="info-modal-body"></div>
+    <button id="info-modal-ok" class="btn btn-primary">OK</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
