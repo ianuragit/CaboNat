@@ -107,6 +107,7 @@ class AIPlayer {
 
     for (const [slot, knownCard] of player.knownCards) {
       if (slot < 0 || slot > 3) continue; // skip opponent-knowledge entries (negative keys)
+      if (!knownCard) continue;
       const saving = knownCard.value - drawnCard.value;
       if (saving > bestSaving) {
         bestSaving = saving;

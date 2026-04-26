@@ -270,13 +270,33 @@
     <textarea id="debug-log-text" readonly
       style="width:100%;height:52vh;background:#0a1a10;color:#8aad96;font-family:monospace;font-size:0.72rem;border:1px solid rgba(212,175,55,0.3);border-radius:6px;padding:10px;resize:none;white-space:pre;overflow:auto"></textarea>
     <div style="display:flex;gap:10px;margin-top:14px">
-      <button class="btn btn-primary" style="flex:1" id="debug-copy-btn"
-        onclick="navigator.clipboard.writeText(document.getElementById('debug-log-text').value).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy to Clipboard',1500)})">
-        Copy to Clipboard
-      </button>
-      <button class="btn available" style="flex:1" id="debug-download-btn">
-        Download .txt
-      </button>
+      <button class="btn btn-primary" style="flex:1" id="debug-copy-btn" onclick="
+        var ta = document.getElementById('debug-log-text');
+        ta.select(); ta.setSelectionRange(0, 99999);
+        var btn = this;
+        function showFeedback(ok) {
+          btn.textContent = ok ? '✓ Copied!' : 'Select all text above and copy manually';
+          setTimeout(function(){ btn.textContent = 'Copy to Clipboard'; }, 2000);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ta.value).then(function(){ showFeedback(true); }).catch(function(){
+            try { document.execCommand('copy'); showFeedback(true); } catch(e) { showFeedback(false); }
+          });
+        } else {
+          try { document.execCommand('copy'); showFeedback(true); } catch(e) { showFeedback(false); }
+        }
+      ">Copy to Clipboard</button>
+      <button class="btn available" style="flex:1" id="debug-download-btn" onclick="
+        var txt = document.getElementById('debug-log-text').value;
+        try {
+          var b = new Blob([txt], {type:'text/plain'});
+          var u = URL.createObjectURL(b);
+          var a = document.createElement('a');
+          a.href = u; a.download = 'cabo-debug-' + Date.now() + '.txt';
+          document.body.appendChild(a); a.click();
+          setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(u); }, 300);
+        } catch(e) { alert('Download failed — use Copy to Clipboard instead.'); }
+      ">Download .txt</button>
       <button class="btn" style="flex:0 0 auto" onclick="document.getElementById('debug-modal').style.display='none'">
         Close
       </button>
