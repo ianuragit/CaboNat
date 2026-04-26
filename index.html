@@ -193,6 +193,75 @@
   </div>
 </div>
 
+<!-- ─── Abilities Reference Modal ───────────────────────────────── -->
+<div id="abilities-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box modal-box-lg">
+    <h2>Card Abilities</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;margin-bottom:10px">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:6px 4px;color:#d4af37;border-bottom:1px solid rgba(255,255,255,0.15)">Card</th>
+          <th style="text-align:left;padding:6px 4px;color:#d4af37;border-bottom:1px solid rgba(255,255,255,0.15)">Ability (only when discarded)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:7px 4px;font-weight:bold;color:#fbbf24">7 / 8</td>
+          <td style="padding:7px 4px;color:#e8ead0">Peek at any one of <em>your own</em> face-down cards</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,0.04)">
+          <td style="padding:7px 4px;font-weight:bold;color:#fbbf24">9 / 10</td>
+          <td style="padding:7px 4px;color:#e8ead0">Spy on any one of an <em>opponent's</em> face-down cards</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 4px;font-weight:bold;color:#fbbf24">J / Q</td>
+          <td style="padding:7px 4px;color:#e8ead0">Blind swap — exchange one of your cards with an opponent's <em>without seeing either</em></td>
+        </tr>
+        <tr style="background:rgba(255,255,255,0.04)">
+          <td style="padding:7px 4px;font-weight:bold;color:#4ade80">K <small style="color:#8aad96">(= 0 pts)</small></td>
+          <td style="padding:7px 4px;color:#e8ead0">Look at one opponent's card, then <em>optionally</em> swap it with one of yours</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.78rem;color:#8aad96;margin-bottom:16px">Abilities only fire when you <strong style="color:#e8ead0">discard</strong> the drawn card. Swapping it into your hand gives no ability.</p>
+    <button class="btn btn-primary" onclick="document.getElementById('abilities-modal').style.display='none'">Got it</button>
+  </div>
+</div>
+
+<!-- ─── Rules Modal ───────────────────────────────────────────── -->
+<div id="rules-modal" class="modal-overlay" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box modal-box-lg">
+    <h2>How to Play Cabo</h2>
+    <div style="text-align:left;font-size:0.85rem;line-height:1.65;max-height:62vh;overflow-y:auto;padding-right:8px">
+      <p style="color:#d4af37;font-weight:bold;margin-bottom:4px">Objective</p>
+      <p style="color:#e8ead0;margin-bottom:10px">Have the <strong>lowest total hand value</strong> when "Cabo" is called. Kings&nbsp;=&nbsp;0&nbsp;pts, Aces&nbsp;=&nbsp;1, J/Q&nbsp;=&nbsp;10, all others face value.</p>
+
+      <p style="color:#d4af37;font-weight:bold;margin-bottom:4px">Setup</p>
+      <p style="color:#e8ead0;margin-bottom:10px">Each player gets 4 face-down cards arranged in a 2×2 grid. At round start you secretly peek at your <strong>bottom 2 cards</strong> — memorise them!</p>
+
+      <p style="color:#d4af37;font-weight:bold;margin-bottom:4px">On Your Turn</p>
+      <ol style="color:#e8ead0;padding-left:18px;margin:0 0 6px">
+        <li style="margin-bottom:4px"><strong>Call Cabo</strong> — skip drawing; every other player takes one final turn, then hands are revealed</li>
+        <li style="margin-bottom:4px"><strong>Draw from Deck</strong> — flip the top deck card face-up</li>
+        <li style="margin-bottom:4px"><strong>Take Discard</strong> — take the top card from the discard pile</li>
+      </ol>
+      <p style="color:#e8ead0;margin-bottom:4px">After drawing, pick one:</p>
+      <ul style="color:#e8ead0;padding-left:18px;margin:0 0 10px">
+        <li style="margin-bottom:4px"><strong>Swap with Hand</strong> — replace any of your 4 cards with the drawn card (your old card goes to discard). No ability fires.</li>
+        <li style="margin-bottom:4px"><strong>Discard Drawn Card</strong> — put it in the discard pile. If it's 7/8/9/10/J/Q/K its special ability triggers!</li>
+      </ul>
+
+      <p style="color:#d4af37;font-weight:bold;margin-bottom:4px">Calling Cabo</p>
+      <p style="color:#e8ead0;margin-bottom:4px">Click <strong>Call Cabo</strong> at the start of your turn instead of drawing. All other players each get one final turn. Then all hands flip face-up.</p>
+      <p style="color:#f87171;margin-bottom:10px">⚠️ If you called Cabo but someone else has a lower (or equal) hand, you score your total <strong>+ 10 penalty points</strong>.</p>
+
+      <p style="color:#d4af37;font-weight:bold;margin-bottom:4px">Scoring &amp; Winning</p>
+      <p style="color:#e8ead0">The round winner (lowest hand) scores their total. Everyone else scores their total. Reach <strong>100 points → eliminated</strong>. Last player standing wins the game.</p>
+    </div>
+    <button class="btn btn-primary" style="margin-top:18px" onclick="document.getElementById('rules-modal').style.display='none'">Close</button>
+  </div>
+</div>
+
 <script type="module" src="js/main.js"></script>
 </body>
 </html>
