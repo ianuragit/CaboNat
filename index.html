@@ -46,6 +46,12 @@
   <!-- Table -->
   <div id="table">
 
+    <!-- Floating helper buttons -->
+    <div id="floating-btns">
+      <button id="btn-rules" class="float-btn" title="How to play">?</button>
+      <button id="btn-info" class="float-btn float-btn-info" title="Card abilities">i</button>
+    </div>
+
     <!-- Peek overlay -->
     <div id="peek-overlay">
       <div class="peek-msg">
@@ -180,7 +186,7 @@
 
 <!-- ─── Info / Results Modal ──────────────────────────────────── -->
 <div id="info-modal" class="modal-overlay">
-  <div class="modal-box">
+  <div class="modal-box modal-box-lg">
     <h2 id="info-modal-title">Result</h2>
     <div id="info-modal-body"></div>
     <button id="info-modal-ok" class="btn btn-primary">OK</button>
