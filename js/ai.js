@@ -35,37 +35,68 @@ class AIPlayer {
     }
 
     setTimeout(() => {
-      // Guard: bail if phase changed (e.g. new round started mid-delay)
-      if (game.phase !== PHASES.PLAYER_TURN && game.phase !== PHASES.FINAL_TURNS) return;
+      try {
+        // Bail if phase changed while waiting (e.g. new round started)
+        if (game.phase !== PHASES.PLAYER_TURN && game.phase !== PHASES.FINAL_TURNS) return;
 
-      let drawnCard;
-      if (drawAction === 'discard') {
-        drawnCard = game.takeFromDiscard();
-      } else {
-        drawnCard = game.drawFromDeck();
-      }
+        let drawnCard;
+        if (drawAction === 'discard') {
+          drawnCard = game.takeFromDiscard();
+        } else {
+          drawnCard = game.drawFromDeck();
+        }
 
-      if (!drawnCard) {
-        // Fallback: deck and discard both empty — force end turn
+        if (!drawnCard) {
+          game.endAction();
+          return;
+        }
+
+        setTimeout(() => {
+          try {
+            this._decideAction(drawnCard);
+          } catch (e) {
+            game.emit('aiError', { msg: e.message, stack: e.stack });
+            game.drawnCard = null;
+            game.endAction();
+          }
+        }, 500);
+      } catch (e) {
+        game.emit('aiError', { msg: e.message, stack: e.stack });
         game.endAction();
-        return;
       }
-
-      setTimeout(() => this._decideAction(drawnCard), 500);
     }, 400);
   }
 
   _decideAction(drawnCard) {
     const game = this.game;
-    // Guard: bail if no longer holding a drawn card (phase changed)
-    if (!game.drawnCard) return;
+    // If drawnCard was already consumed (phase changed mid-delay), end the turn
+    if (!game.drawnCard) {
+      game.endAction();
+      return;
+    }
 
     const swapSlot = this._bestSwapSlot(drawnCard);
 
     if (swapSlot !== -1) {
-      setTimeout(() => game.swapDrawnWithSlot(swapSlot), 350);
+      setTimeout(() => {
+        try {
+          game.swapDrawnWithSlot(swapSlot);
+        } catch (e) {
+          game.emit('aiError', { msg: e.message, stack: e.stack });
+          game.drawnCard = null;
+          game.endAction();
+        }
+      }, 350);
     } else {
-      setTimeout(() => game.discardDrawn(null), 350);
+      setTimeout(() => {
+        try {
+          game.discardDrawn(null);
+        } catch (e) {
+          game.emit('aiError', { msg: e.message, stack: e.stack });
+          game.drawnCard = null;
+          game.endAction();
+        }
+      }, 350);
     }
   }
 
