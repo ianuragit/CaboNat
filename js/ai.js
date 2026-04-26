@@ -49,29 +49,12 @@ class AIPlayer {
 
   _decideAction(drawnCard) {
     const game = this.game;
-    const player = this.player;
-
-    // If we drew from discard, always swap (we chose it deliberately)
-    if (drawnCard === game.drawnCard) {
-      const ability = getAbility(drawnCard.rank);
-
-      // Find best slot to swap with
-      const swapSlot = this._bestSwapSlot(drawnCard);
-
-      if (swapSlot !== -1) {
-        setTimeout(() => game.swapDrawnWithSlot(swapSlot), 600);
-      } else {
-        setTimeout(() => game.discardDrawn(null), 600);
-      }
-      return;
-    }
-
     const swapSlot = this._bestSwapSlot(drawnCard);
 
     if (swapSlot !== -1) {
       setTimeout(() => game.swapDrawnWithSlot(swapSlot), 600);
     } else {
-      // Discard — ability is triggered via event if applicable
+      // Discard — ability fires via 'abilityTriggered' event if applicable
       setTimeout(() => game.discardDrawn(null), 600);
     }
   }
