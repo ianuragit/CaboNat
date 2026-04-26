@@ -216,7 +216,7 @@ class UIRenderer {
 
     const btnCabo = document.getElementById('btn-cabo');
     const btnDeck = document.getElementById('btn-deck');
-    const btnDiscard = document.getElementById('btn-discard');
+    const btnDiscard = document.getElementById('btn-discard-take');
     const btnSwap = document.getElementById('btn-swap');
     const btnKeep = document.getElementById('btn-keep');
 

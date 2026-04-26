@@ -1,5 +1,6 @@
 // ai.js - AI opponent logic
 
+import { PHASES } from './game.js';
 
 class AIPlayer {
   constructor(player, game, abilityHandler) {
@@ -18,8 +19,8 @@ class AIPlayer {
     const game = this.game;
     const player = this.player;
 
-    // Consider calling Cabo
-    if (this.shouldCallCabo()) {
+    // Only call Cabo at the start of a normal turn, never during final turns
+    if (this.shouldCallCabo() && game.phase === PHASES.PLAYER_TURN) {
       setTimeout(() => game.callCabo(), 600);
       return;
     }

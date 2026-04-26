@@ -76,6 +76,10 @@ function bindStaticButtons() {
 
   document.getElementById('btn-cancel-select')?.addEventListener('click', () => {
     ui.clearSelectionMode();
+    // If cancelled mid-ability, skip the ability so the turn can proceed
+    if (game.phase === PHASES.ABILITY_PHASE) {
+      game.abilityDone();
+    }
   });
 }
 
