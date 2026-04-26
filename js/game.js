@@ -163,16 +163,19 @@ class GameState {
   swapDrawnWithSlot(slotIndex) {
     const player = this.currentPlayer;
     const oldCard = player.hand[slotIndex];
-    player.hand[slotIndex] = this.drawnCard;
-    // Update known cards: player now knows the new card at this slot
-    player.learnCard(slotIndex, this.drawnCard);
+    if (!oldCard || !this.drawnCard) { this.endAction(); return; } // safety guard
+
+    const incoming = this.drawnCard;
+    incoming.faceUp = false; // card entering hand is no longer visible to others
+    player.hand[slotIndex] = incoming;
+    player.learnCard(slotIndex, incoming);
 
     oldCard.faceUp = true;
     this.discardPile.push(oldCard);
     this.drawnCard = null;
 
     this.addLog(`${player.name} swapped slot ${slotIndex + 1}.`);
-    this.emit('cardSwapped', { player, slotIndex, newCard: player.hand[slotIndex], discarded: oldCard });
+    this.emit('cardSwapped', { player, slotIndex, newCard: incoming, discarded: oldCard });
     this.endAction();
   }
 

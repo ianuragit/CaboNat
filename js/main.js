@@ -10,6 +10,23 @@ let peekTimer = null;
 let aiTurnTimeout = null;
 let stuckWatchdog = null;
 
+// ── Debug log ────────────────────────────────────────────────────
+const debugLog = [];
+function dbg(msg) {
+  const ts = new Date().toISOString().substring(11, 23);
+  debugLog.push(`[${ts}] ${msg}`);
+  if (debugLog.length > 500) debugLog.shift();
+}
+function gameSnapshot() {
+  if (!game || !game.players.length) return '(no game)';
+  const players = game.players.map(p =>
+    `  ${p.name}${p.eliminated ? '[OUT]' : ''}: score=${p.score} ` +
+    `hand=[${p.hand.map(c => c ? `${c.rank}${c.suit}(${c.faceUp ? 'up' : 'dn'})` : 'null').join(',')}]`
+  ).join('\n');
+  const drawn = game.drawnCard ? `${game.drawnCard.rank}${game.drawnCard.suit}` : 'none';
+  return `Round=${game.roundNumber} Phase=${game.phase} Current=${game.currentPlayer?.name} Drawn=${drawn}\n${players}`;
+}
+
 function init() {
   game = new GameState();
   ui = new UIRenderer(game);
@@ -39,6 +56,7 @@ function bindStaticButtons() {
   document.getElementById('btn-rules')?.addEventListener('click', () => {
     document.getElementById('rules-modal').style.display = 'flex';
   });
+  document.getElementById('btn-export-log')?.addEventListener('click', exportDebugLog);
 
   document.getElementById('btn-cabo')?.addEventListener('click', () => {
     if (game.phase !== PHASES.PLAYER_TURN) return;
@@ -102,9 +120,10 @@ function isHumanTurnReady(needsDrawn = false) {
 }
 
 function setupGameEvents() {
-  game.on('log', () => ui.renderLog());
+  game.on('log', msg => { ui.renderLog(); dbg('LOG: ' + msg); });
 
-  game.on('roundStart', () => {
+  game.on('roundStart', ({ round }) => {
+    dbg(`--- ROUND ${round} START ---`);
     ui.renderBoard();
     setupAIPlayers();
     startPeekPhase();
@@ -185,8 +204,15 @@ function setupGameEvents() {
   });
 
   game.on('turnStart', ({ player }) => {
+    dbg(`TURN_START: ${player.name} phase=${game.phase}`);
     ui.renderBoard();
     scheduleAITurn(player);
+  });
+
+  game.on('aiError', ({ msg, stack }) => {
+    dbg(`AI_ERROR: ${msg}\n${stack}`);
+    console.error('[Cabo AI Error]', msg, stack);
+    ui.renderBoard();
   });
 }
 
@@ -246,14 +272,37 @@ function scheduleAITurn(player) {
       if (cp && cp.isAI) {
         const phase = game.phase;
         if (phase === PHASES.PLAYER_TURN || phase === PHASES.FINAL_TURNS || phase === PHASES.ABILITY_PHASE) {
+          dbg(`WATCHDOG_FIRED: forcing endAction for ${cp.name}, phase=${phase}`);
+          dbg(gameSnapshot());
           game.drawnCard = null;
           if (phase === PHASES.ABILITY_PHASE) game.abilityContext = null;
           game.endAction();
           ui.renderBoard();
         }
       }
-    }, 6000);
+    }, 4000);
   }, 300);
+}
+
+function exportDebugLog() {
+  const header = [
+    '=== Cabo Debug Log ===',
+    `Exported: ${new Date().toISOString()}`,
+    '',
+    '--- Current Game State ---',
+    gameSnapshot(),
+    '',
+    '--- Event Log ---',
+  ];
+  const content = [...header, ...debugLog].join('\n');
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cabo-debug-${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
 }
 
 document.addEventListener('DOMContentLoaded', init);
