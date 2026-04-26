@@ -179,6 +179,7 @@ class GameState {
   // Discard drawn card (may trigger ability)
   discardDrawn(onAbilityComplete) {
     const card = this.drawnCard;
+    if (!card) { this.endAction(); return; } // safety: nothing drawn
     this.drawnCard = null;
     card.faceUp = true;
     this.discardPile.push(card);

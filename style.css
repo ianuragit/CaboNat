@@ -547,6 +547,44 @@ html, body {
   margin-bottom: 4px;
 }
 
+/* ─── Floating helper buttons ──────────────────────────────────── */
+#floating-btns {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 20;
+}
+
+.float-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.5);
+  background: rgba(0,0,0,0.55);
+  color: var(--gold);
+  font-size: 1rem;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  line-height: 1;
+}
+
+.float-btn:hover {
+  background: rgba(212,175,55,0.2);
+  border-color: var(--gold);
+  transform: scale(1.1);
+}
+
+.float-btn-info {
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
 /* ─── Modals ───────────────────────────────────────────────────── */
 .modal-overlay {
   position: fixed; inset: 0;
@@ -564,6 +602,11 @@ html, body {
   min-width: 280px;
   max-width: 420px;
   text-align: center;
+}
+
+.modal-box-lg {
+  max-width: 540px;
+  width: 90vw;
 }
 
 .modal-box h2 {
