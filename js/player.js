@@ -39,11 +39,12 @@ class Player {
     return total;
   }
 
-  // Get the known highest-value slot index
+  // Get the known highest-value slot index (own hand only, slots 0-3)
   highestKnownSlot() {
     let maxVal = -1;
     let maxSlot = -1;
     for (const [slot, card] of this.knownCards) {
+      if (slot < 0 || slot > 3) continue; // skip opponent knowledge entries
       if (card.value > maxVal) {
         maxVal = card.value;
         maxSlot = slot;
