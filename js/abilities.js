@@ -64,6 +64,7 @@ class AbilityHandler {
     const opponents = game.players.filter((p, i) => p !== player && !p.eliminated);
 
     if (isAI) {
+      if (opponents.length === 0) { game.abilityDone(); return; }
       // AI: spy on an opponent's unknown card
       let target = opponents[0];
       let slot = 0;
@@ -73,6 +74,7 @@ class AbilityHandler {
         }
       }
       const card = target.hand[slot];
+      if (!card) { game.abilityDone(); return; }
       player.learnCard(-(game.players.indexOf(target) * 10 + slot), card); // track opponent knowledge
       game.addLog(`${player.name} spied on ${target.name}'s slot ${slot + 1}.`);
       this.ui.flashCard(target, slot, card, 1500, () => game.abilityDone());
@@ -97,11 +99,14 @@ class AbilityHandler {
     const opponents = game.players.filter(p => p !== player && !p.eliminated);
 
     if (isAI) {
+      if (opponents.length === 0) { game.abilityDone(); return; }
       // AI: swap its known highest card with an opponent's unknown slot
       const myHighSlot = player.highestKnownSlot();
       const mySlot = myHighSlot === -1 ? 0 : myHighSlot;
       const target = opponents[0];
-      const oppSlot = 0;
+      // find first non-null slot in target's hand
+      const oppSlot = target.hand.findIndex(c => c !== null);
+      if (oppSlot === -1) { game.abilityDone(); return; }
 
       this._doSwap(player, mySlot, target, oppSlot);
       game.addLog(`${player.name} blind-swapped with ${target.name}.`);
@@ -139,9 +144,11 @@ class AbilityHandler {
     const opponents = game.players.filter(p => p !== player && !p.eliminated);
 
     if (isAI) {
+      if (opponents.length === 0) { game.abilityDone(); return; }
       // Spy on opponent's card, then decide to swap
       const target = opponents[0];
-      const oppSlot = 0;
+      const oppSlot = target.hand.findIndex(c => c !== null);
+      if (oppSlot === -1) { game.abilityDone(); return; }
       const spiedCard = target.hand[oppSlot];
       const myHighSlot = player.highestKnownSlot();
 

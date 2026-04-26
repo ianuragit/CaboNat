@@ -272,11 +272,15 @@ function scheduleAITurn(player) {
       if (cp && cp.isAI) {
         const phase = game.phase;
         if (phase === PHASES.PLAYER_TURN || phase === PHASES.FINAL_TURNS || phase === PHASES.ABILITY_PHASE) {
-          dbg(`WATCHDOG_FIRED: forcing endAction for ${cp.name}, phase=${phase}`);
+          dbg(`WATCHDOG_FIRED: forcing turn end for ${cp.name}, phase=${phase}`);
           dbg(gameSnapshot());
           game.drawnCard = null;
-          if (phase === PHASES.ABILITY_PHASE) game.abilityContext = null;
-          game.endAction();
+          if (phase === PHASES.ABILITY_PHASE) {
+            // abilityDone() restores priorPhase before calling endAction
+            game.abilityDone();
+          } else {
+            game.endAction();
+          }
           ui.renderBoard();
         }
       }
@@ -295,31 +299,8 @@ function exportDebugLog() {
     '--- Event Log ---',
     ...debugLog,
   ];
-  const content = lines.join('\n');
-
-  // Populate the modal textarea
   const textarea = document.getElementById('debug-log-text');
-  if (textarea) textarea.value = content;
-
-  // Wire the download button each time (content changes)
-  const dlBtn = document.getElementById('debug-download-btn');
-  if (dlBtn) {
-    dlBtn.onclick = () => {
-      try {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `cabo-debug-${Date.now()}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
-      } catch (e) {
-        alert('Download failed — use Copy to Clipboard instead.');
-      }
-    };
-  }
-
+  if (textarea) textarea.value = lines.join('\n');
   document.getElementById('debug-modal').style.display = 'flex';
 }
 

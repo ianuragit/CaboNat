@@ -31,7 +31,8 @@ class Player {
     let total = 0;
     for (let i = 0; i < 4; i++) {
       if (this.knownCards.has(i)) {
-        total += this.knownCards.get(i).value;
+        const c = this.knownCards.get(i);
+        total += c ? c.value : 5;
       } else {
         total += 5; // unknown card estimate
       }
@@ -45,6 +46,7 @@ class Player {
     let maxSlot = -1;
     for (const [slot, card] of this.knownCards) {
       if (slot < 0 || slot > 3) continue; // skip opponent knowledge entries
+      if (!card) continue;
       if (card.value > maxVal) {
         maxVal = card.value;
         maxSlot = slot;
