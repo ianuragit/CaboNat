@@ -285,7 +285,7 @@ function scheduleAITurn(player) {
 }
 
 function exportDebugLog() {
-  const header = [
+  const lines = [
     '=== Cabo Debug Log ===',
     `Exported: ${new Date().toISOString()}`,
     '',
@@ -293,16 +293,34 @@ function exportDebugLog() {
     gameSnapshot(),
     '',
     '--- Event Log ---',
+    ...debugLog,
   ];
-  const content = [...header, ...debugLog].join('\n');
-  const blob = new Blob([content], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `cabo-debug-${Date.now()}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
+  const content = lines.join('\n');
+
+  // Populate the modal textarea
+  const textarea = document.getElementById('debug-log-text');
+  if (textarea) textarea.value = content;
+
+  // Wire the download button each time (content changes)
+  const dlBtn = document.getElementById('debug-download-btn');
+  if (dlBtn) {
+    dlBtn.onclick = () => {
+      try {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cabo-debug-${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+      } catch (e) {
+        alert('Download failed — use Copy to Clipboard instead.');
+      }
+    };
+  }
+
+  document.getElementById('debug-modal').style.display = 'flex';
 }
 
 document.addEventListener('DOMContentLoaded', init);
